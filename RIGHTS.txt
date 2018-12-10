@@ -6,3 +6,6 @@ Page vector taken from:
 https://www.freevector.com/page-turn-vectors#
 
 and assembled together
+
+
+Credits to http://autopagerize.net/ for AutoPagerize plugin and database
