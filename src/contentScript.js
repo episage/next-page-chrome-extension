@@ -13,6 +13,11 @@ var database = [
         pageElement: '//div[@id="res"]/div', // pagination insert location (XPath)
         exampleUrl: 'http://www.google.com/search?q=nsIObserver', // sample URL for testing
     },
+    {
+        urlRegExp: "",
+        pageItemXPath: "",
+        nextLinkXPath: "",
+    }
 ];
 
 var options = {
@@ -21,89 +26,130 @@ var options = {
 
 run(options, database);
 
+
+
 async function run(options, database) {
-    // step 1, match url
-    var matchingDescriptor = database.find(d => {
-        return window.location.href.match(d.url);
-    });
-    if (matchingDescriptor) {
-        console.debug(`found a match`, matchingDescriptor);
-    } else {
-        console.debug(`this page has no matches`);
-    }
-    if (!matchingDescriptor) {
-        return;
-    }
 
+    // await once([
+    //     waitForProximityEvent,
+    //     matchUrl,
+    //     findAllPageItems(window.document),
+    //     computeInsertLocation,
+    //     loadNextPage,
+    //     await loop([
+    //         waitForProximityEvent,
+    //         findAllPageItems(window.document),
+    //         computeInsertLocation,
+    //         loadNextPage,
+    //     ])
+    // ])
 
-    // step 2, match insert location
-    var matchingPageElement = getElementByXPath(window.document, matchingDescriptor.pageElement)
-    if (matchingPageElement) {
-        console.debug(`found a matching page element`, matchingPageElement);
-    } else {
-        console.debug(`this page has no matchning page element`, matchingDescriptor);
-    }
-    if (!matchingPageElement) {
-        return;
-    }
+    function subscribeEndOfPageEvent(callback) {
+        // console.log('subscribing scroll event')
+        window.addEventListener("scroll", onScroll,
+            {
+                passive: true, useCapture: false
+            }
+        );
+        setTimeout(onScroll, 1); // init
 
-
-    // step 3, match next link element
-    var matchingNextLinkElement = getElementByXPath(window.document, matchingDescriptor.nextLink)
-    if (matchingNextLinkElement) {
-        console.debug(`found a matching next link element`, matchingNextLinkElement);
-    } else {
-        console.debug(`this page has no matchning next element`, matchingDescriptor);
-    }
-    if (!matchingNextLinkElement) {
-        return;
-    }
-
-    // step 4, create insert location
-    var insertLocation = null;
-    if (matchingPageElement.nextSibling) {
-
-    }
-
-    // debugging here
-
-    var a = 1;
-
-    var nextPageUrl = getElementHref(matchingNextLinkElement);
-
-    var response = await fetch(nextPageUrl);
-    var responseText = await response.text();
-    responseText = stripHtmlTag(responseText);
-    var domParser = new DOMParser();
-    var doc = domParser.parseFromString(responseText, 'text/html');
-    doc = removeScripts(doc);
-    var nextPage = getElementByXPath(doc, matchingDescriptor.pageElement);
-
-    matchingPageElement.parentElement.appendChild(nextPage);
-
-
-    var b = 2;
-    // eo d
-
-    // step 4, subscribe scroll event
-    window.addEventListener("scroll", onScroll,
-        {
-            passive: true, useCapture: false
+        function onScroll() {
+            // var remainHeight = scrollHeight - bottom + BASE_REMAIN_HEIGHT
+            // var pageHeight = document.documentElement.scrollHeight;
+            // var viewPortHeight = window.innerHeight;
+            // var scrollTopPosition = window.scrollY;
+            var distanceFromBottom = -((window.innerHeight + window.scrollY) - document.body.scrollHeight);
+            // console.log(distanceFromBottom);
+            if (distanceFromBottom <= 200) {
+                callback(distanceFromBottom);
+            }
         }
-    );
-    console.debug(`subscribed to scroll event`, matchingDescriptor);
 
-    function onScroll() {
-        // var remainHeight = scrollHeight - bottom + BASE_REMAIN_HEIGHT
-        var pageHeight = document.documentElement.scrollHeight;
-        var viewPortHeight = window.innerHeight;
-        var scrollTopPosition = window.scrollY;
-
-        console.log('scrollll');
+        return {
+            cancel() {
+                window.removeEventListener("scroll", onScroll,
+                    {
+                        passive: true, useCapture: false
+                    }
+                );
+            }
+        }
     }
+
+
+    // console.debug(`subscribed to scroll event`, matchingDescriptor);
+
+    console.log('www')
+    var subscription = subscribeEndOfPageEvent(async (y) => {
+        subscription.cancel();
+
+        // step 1, match url
+        var matchingDescriptor = database.find(d => {
+            return window.location.href.match(d.url);
+        });
+        if (matchingDescriptor) {
+            console.debug(`found a match`, matchingDescriptor);
+        } else {
+            console.debug(`this page has no matches`);
+        }
+        if (!matchingDescriptor) {
+            return;
+        }
+
+
+        // step 2, match insert location
+        var matchingPageElement = getElementByXPath(window.document, matchingDescriptor.pageElement)
+        if (matchingPageElement) {
+            console.debug(`found a matching page element`, matchingPageElement);
+        } else {
+            console.debug(`this page has no matchning page element`, matchingDescriptor);
+        }
+        if (!matchingPageElement) {
+            return;
+        }
+
+
+        // step 3, match next link element
+        var matchingNextLinkElement = getElementByXPath(window.document, matchingDescriptor.nextLink)
+        if (matchingNextLinkElement) {
+            console.debug(`found a matching next link element`, matchingNextLinkElement);
+        } else {
+            console.debug(`this page has no matchning next element`, matchingDescriptor);
+        }
+        if (!matchingNextLinkElement) {
+            return;
+        }
+
+        // step 4, create insert location
+        var nextPageUrl = getElementHref(matchingNextLinkElement);
+
+        var response = await fetch(nextPageUrl);
+        var responseText = await response.text();
+        responseText = stripHtmlTag(responseText);
+        var domParser = new DOMParser();
+        var doc = domParser.parseFromString(responseText, 'text/html');
+        doc = removeScripts(doc);
+        var nextPageFragments = getAllElementsByXPath(doc, matchingDescriptor.pageElement);
+
+        console.log('appending');
+        for (var i = 0; i < nextPageFragments.snapshotLength; i++) {
+            var pageFragment = nextPageFragments.snapshotItem(i);
+            matchingPageElement.parentElement.appendChild(pageFragment);
+        }
+    })
+
+
+
+
+
+
 
     function getElementByXPath(doc, xPath) {
         return document.evaluate(xPath, doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    }
+
+    function getAllElementsByXPath(doc, xPath) {
+        return document.evaluate(xPath, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     }
 
     function getElementHref(element) {
