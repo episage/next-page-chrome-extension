@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "NextPage",
-  "description": "Chrome, Next Page, Please! Extension that auto loads next page of your favourite forum, board or image site. Based on rich AutoPagerize database. Open source and extensible.",
+  "description": "Scroll to infinity. Chrome, Next Page, Please! Extension that auto loads next page of your favourite forum, board or image site. Based on rich AutoPagerize database. Open source and extensible.",
   "version": "1.0.0",
   "minimum_chrome_version": "42",
   "icons": {

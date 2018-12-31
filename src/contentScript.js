@@ -28,21 +28,23 @@ window.addEventListener('load', () => {
     run(options, database);
 });
 
+var log = console.debug;
+
 async function run(options, database) {
     // step 1, match url
     var matchingDescriptor = database.find(d => {
         return window.location.href.match(d.url);
     });
     if (matchingDescriptor) {
-        console.debug(`found a match`, matchingDescriptor);
+        log(`found a match`, matchingDescriptor);
     } else {
-        console.debug(`this page has no matches`);
+        log(`this page has no matches`);
     }
     if (!matchingDescriptor) {
         return;
     }
 
-    loop(window.document, null, 1, loop);
+    loop(window.document, null, 2, loop);
 
     return;
 
@@ -55,9 +57,9 @@ async function run(options, database) {
                 appendNode = getAppendNode(root, matchingDescriptor.pageElement);
                 window.il = appendNode; // temp
                 if (appendNode) {
-                    console.debug(`found a matching page element`, appendNode);
+                    log(`found a matching page element`, appendNode);
                 } else {
-                    console.debug(`this page has no matchning page element`, matchingDescriptor);
+                    log(`this page has no matchning page element`, matchingDescriptor);
                 }
                 if (!appendNode) {
                     return;
@@ -67,9 +69,9 @@ async function run(options, database) {
             // step 3, match next link element
             var nextPageElement = getElementByXPath(root, matchingDescriptor.nextLink)
             if (nextPageElement) {
-                console.debug(`found a matching next link element`, nextPageElement);
+                log(`found a matching next link element`, nextPageElement);
             } else {
-                console.debug(`this page has no matchning next element`, matchingDescriptor);
+                log(`this page has no matchning next element`, matchingDescriptor);
             }
             if (!nextPageElement) {
                 return;
@@ -87,9 +89,8 @@ async function run(options, database) {
             var nextPageFragments = getAllElementsByXPath(nextRoot, matchingDescriptor.pageElement);
 
 
-            console.log('appending...');
             appendNode.appendChild(document.createElement("hr"));
-            appendNode.appendChild(document.createTextNode(`page ${pageNumber}`));
+            appendNode.appendChild(document.createTextNode(`NextPage: ${pageNumber}`));
             appendNode.appendChild(document.createElement("hr"));
 
             for (var i = 0; i < nextPageFragments.snapshotLength; i++) {
@@ -129,7 +130,7 @@ async function run(options, database) {
             throw 'whaat?!'
         }
 
-        console.log(`an:`, appendNode);
+        log(`an:`, appendNode);
 
         return appendNode;
     }
