@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "AutoPage",
+  "name": "NextPage",
   "description": "Auto load next page of your favourite forum, board or image site. Based on rich AutoPagerize database. Open source and extensible.",
   "version": "1.0.0",
   "minimum_chrome_version": "42",
@@ -11,17 +11,6 @@
     "48": "images/manifest/48.png",
     "128": "images/manifest/128.png"
   },
-  "page_action": {
-    "default_title": "Chrome, Next Page, Please!",
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "images/manifest/16.png",
-      "32": "images/manifest/32.png",
-      "48": "images/manifest/48.png",
-      "128": "images/manifest/128.png"
-    }
-  },
-  "default_locale": "en",
   "background": {
     "persistent": false,
     "scripts": [
@@ -44,11 +33,5 @@
         "src/contentScript.js"
       ]
     }
-  ],
-  "options_page": "options.html",
-  "web_accessible_resources": [
-    "error.html",
-    "loading.html",
-    "loading.gif"
   ]
 }

@@ -30,14 +30,16 @@ window.onload = function () {
             var matchingDescriptor = database.find(d => {
                 return request.match(d.url);
             });
-            // if (matchingDescriptor) {
-            //     log(`found a match`, matchingDescriptor);
-            // } else {
-            //     log(`this page has no matches`);
-            // }
+            if (matchingDescriptor) {
+                log(`found a match`, matchingDescriptor);
+            } else {
+                log(`this page has no matches`);
+            }
             if (!matchingDescriptor) {
                 return;
             }
+
+            
 
             sendResponse(matchingDescriptor);
         } else {

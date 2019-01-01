@@ -1,10 +1,10 @@
 window.addEventListener('load', () => {
-    chrome.runtime.sendMessage(window.location, function (response) {
-        if(!response){
+    chrome.runtime.sendMessage(window.location.href, function (response) {
+        if (!response) {
             return;
         }
 
-        run(options, response);
+        run({}, response);
     });
 });
 
@@ -12,7 +12,7 @@ var log = console.debug;
 
 async function run(options, matchingDescriptor) {
     console.log(matchingDescriptor);
-    
+
     loop(window.document, null, 2, loop);
 
     return;
