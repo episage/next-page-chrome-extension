@@ -1,9 +1,10 @@
 {
   "manifest_version": 2,
-  "name": "NextPage",
-  "description": "Scroll to infinity. Chrome, Next Page, Please! Extension that auto loads next page of your favourite forum, board or image site. Based on rich AutoPagerize database. Open source and extensible.",
+  "name": "infinity-scroll",
+  "description": "Auto load next page of your favourite forum, board or image site. Based on rich AutoPagerize database. Open source and extensible.",
   "version": "1.0.0",
   "minimum_chrome_version": "42",
+  "tags": "infinite scroll, auto scroll, page scroll, next page, autopagerize, auto next page, autopager, pager, pagination",
   "icons": {
     "16": "images/manifest/16.png",
     "32": "images/manifest/32.png",
@@ -28,9 +29,10 @@
     ]
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
-  "homepage_url": "http://nextpage.ciborski.com/",
+  "homepage_url": "https://infinity-scroll.chrome-web-store.projects.ciborski.com/",
   "content_scripts": [
     {
       "run_at": "document_end",
