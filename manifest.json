@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "infinity-scroll",
+  "name": "AutoPage",
   "description": "Auto load next page of your favourite forum, board or image site. Based on rich AutoPagerize database. Open source and extensible.",
   "version": "1.0.0",
   "minimum_chrome_version": "42",
