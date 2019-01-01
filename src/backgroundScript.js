@@ -39,7 +39,7 @@ window.onload = function () {
                 return;
             }
 
-            
+            fetch()
 
             sendResponse(matchingDescriptor);
         } else {
