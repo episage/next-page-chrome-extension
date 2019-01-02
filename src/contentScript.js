@@ -1,25 +1,31 @@
 window.addEventListener('load', () => {
-    chrome.runtime.sendMessage(window.location.href, function (response) {
-        if (!response) {
+    chrome.runtime.sendMessage(window.location.href, async function (descriptors) {
+        if (!descriptors || descriptors.length === 0) {
             return;
         }
 
-        run({}, response);
+        var i = 0;
+        run({}, descriptors[i], function handleErrrrrror(error) {
+            console.log(error);
+            if (error) {
+                i++;
+                run({}, descriptors[i], handleErrrrrror);
+            }
+        });
     });
 });
 
 var log = console.debug;
 
-async function run(options, matchingDescriptor) {
+function run(options, matchingDescriptor, errorCb) {
     console.log(matchingDescriptor);
 
     loop(window.document, null, 2, loop);
-
     return;
 
     function loop(root, appendNode, pageNumber, callback) {
         var subscription = subscribeEndOfPageEvent(async function aaaaa() {
-            subscription.cancel();
+            subscription && subscription.cancel();
 
             if (!appendNode) {
                 // step 2, match insert location
@@ -31,7 +37,7 @@ async function run(options, matchingDescriptor) {
                     log(`this page has no matchning page element`, matchingDescriptor);
                 }
                 if (!appendNode) {
-                    return;
+                    return errorCb('1');
                 }
             }
 
@@ -43,7 +49,7 @@ async function run(options, matchingDescriptor) {
                 log(`this page has no matchning next element`, matchingDescriptor);
             }
             if (!nextPageElement) {
-                return;
+                return errorCb('2');
             }
 
             // step 4, insert
@@ -67,10 +73,9 @@ async function run(options, matchingDescriptor) {
                 appendNode.appendChild(pageFragment);
             }
 
-            return callback.call(null, nextRoot, appendNode, pageNumber + 1, callback);
+            callback.call(null, nextRoot, appendNode, pageNumber + 1, callback);
+            return errorCb(null);
         })
-
-        window.loop = subscription;
     }
 
     function getAppendNode(root, pageFragmentXPath) {
@@ -105,12 +110,17 @@ async function run(options, matchingDescriptor) {
     }
 
     function subscribeEndOfPageEvent(callback) {
-        window.addEventListener("scroll", onScroll,
-            {
-                passive: true, useCapture: false
-            }
-        );
-        // setTimeout(onScroll, 1); // init
+        if (onScroll()) {
+
+        } else {
+            window.addEventListener("scroll", onScroll,
+                {
+                    passive: true, useCapture: false
+                }
+            );
+        }
+
+
 
         return {
             cancel() {
@@ -122,10 +132,17 @@ async function run(options, matchingDescriptor) {
             }
         }
 
-        function onScroll() {
+        function isEndOfPage() {
             var distanceFromBottom = -((window.innerHeight + window.scrollY) - document.body.scrollHeight);
-            if (distanceFromBottom <= 400) {
-                callback(distanceFromBottom);
+            if (distanceFromBottom <= 400) { // to powinno byc jezeli 400px od ostatniego pageFragment w DOMie, NIE-OD-KONCA-STRONY
+                return true;
+            }
+        }
+
+        function onScroll() {
+            if (isEndOfPage()) {
+                callback();
+                return true;
             }
         }
     }
