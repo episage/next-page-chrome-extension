@@ -9,6 +9,10 @@ window.addEventListener('load', () => {
             console.log(error);
             if (error) {
                 i++;
+                if (!descriptors[i]) {
+                    return;
+                }
+
                 run({}, descriptors[i], handleErrrrrror);
             }
         });
