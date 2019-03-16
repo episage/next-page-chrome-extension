@@ -1,6 +1,6 @@
-var consoleLog = () => { }; //console.log;
-var consoleCount = () => { }; //console.count;
-var consoleError = () => { }; // console.error;
+var consoleLog = console.log;
+var consoleCount = console.count;
+var consoleError = console.error;
 
 function matchLocal(urlToMatch, callback) {
     var rules = localStorage.getItem('rules') || '';
@@ -27,6 +27,10 @@ function matchLocal(urlToMatch, callback) {
 }
 
 function skipFirstWord(str) {
+    if (!str) {
+        return str;
+    }
+    
     var idx = str.indexOf(' ');
     return str.substring(idx + 1);
 }

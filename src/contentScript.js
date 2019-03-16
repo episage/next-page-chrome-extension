@@ -1,6 +1,6 @@
-var consoleLog = () => { }; //console.log;
-var consoleCount = () => { }; //console.count;
-var consoleError =  () => { }; // console.error;
+var consoleLog = console.log;
+var consoleCount = console.count;
+var consoleError = console.error;
 
 window.addEventListener('load', async () => {
     var descriptors = await getDecriptiorsForUrl(window.location.href);
@@ -35,6 +35,9 @@ window.addEventListener('load', async () => {
 
             var nextPage = await fetchNextPage(nextPageButton);
             var sanitizedNextPage = await sanitizeNextPage(nextPage);
+            await new Promise((resolve) => {
+                setTimeout(resolve, 500);
+            });
             var nextPageFragmentsXPathResult = getAllElementsByXPath(sanitizedNextPage, desciptor.pageFragmentXPath);
 
             await append(appendNode, nextPageFragmentsXPathResult);
