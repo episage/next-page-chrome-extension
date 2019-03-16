@@ -4,12 +4,14 @@
   "description": "Auto load next page of your favourite forum, board or image site. Based on rich AutoPagerize database. Open source and extensible.",
   "version": "1.0.0",
   "minimum_chrome_version": "42",
-  "tags": "infinite scroll, auto scroll, page scroll, next page, autopagerize, auto next page, autopager, pager, pagination",
   "icons": {
     "16": "images/manifest/16.png",
     "32": "images/manifest/32.png",
     "48": "images/manifest/48.png",
     "128": "images/manifest/128.png"
+  },
+  "options_page": "options.html",
+  "browser_action": {
   },
   "background": {
     "persistent": false,

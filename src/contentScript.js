@@ -1,62 +1,75 @@
+var manuallyAddedDescriptors = [
+    {
+        url: `^https://www\.linuxquestions\.org/questions/`,
+        pageElement: `//div[@id="posts"]//div[@class="page"]`,
+        nextLink: `//a[@rel="next"]`,
+    },
+    {
+        pageElement: `//table[@id="threadslist"]//tbody[starts-with(@id, "threadbits_")]//tr`,
+        nextLink: `//a[@rel="next"]`,
+    }
+]
+
 window.addEventListener('load', () => {
-    chrome.runtime.sendMessage(window.location.href, async function (descriptors) {
+    var urlOfInterest = window.location.href;
+    chrome.runtime.sendMessage({ type: "findUrlDescriptor", url: urlOfInterest }, async function (descriptors) {
         if (!descriptors || descriptors.length === 0) {
+            console.log(`found no descriptors for url`, urlOfInterest);
             return;
         }
+        descriptors = descriptors.concat(manuallyAddedDescriptors);
+        console.log(`found ${descriptors.length} matching descriptors for`, urlOfInterest);
 
         var i = 0;
-        run({}, descriptors[i], function handleErrrrrror(error) {
-            console.log(error);
+        run({}, descriptors[i], i, function handleRunCallback(error) {
             if (error) {
+                console.log(`descriptor ${i} failed with error`, error)
                 i++;
                 if (!descriptors[i]) {
+                    console.log(`and there are no more descriptors available for this url`)
                     return;
                 }
 
-                run({}, descriptors[i], handleErrrrrror);
+                console.log(`but there is another descriptor available`);
+                run({}, descriptors[i], i, handleRunCallback);
             }
         });
     });
 });
 
-var log = console.debug;
+var log = console.info;
 
-function run(options, matchingDescriptor, errorCb) {
-    console.log(matchingDescriptor);
-
+function run(options, matchingDescriptor, descriptorNumber, runCallback) {
+    console.log(`iterating descriptor ${descriptorNumber}`, matchingDescriptor);
     loop(window.document, null, 2, loop);
     return;
 
-    function loop(root, appendNode, pageNumber, callback) {
-        var subscription = subscribeEndOfPageEvent(async function aaaaa() {
-            subscription && subscription.cancel();
+    function loop(root, appendNode /* ? */, pageNumber, loopCallback) {
+        console.log('removeme', appendNode, root);
+        var subscription = subscribeEndOfPageEvent(async function handleEndOfPageEvent() {
+            if (subscription) {
+                subscription.cancel();
+            }
 
             if (!appendNode) {
-                // step 2, match insert location
-                appendNode = getAppendNode(root, matchingDescriptor.pageElement);
-                window.il = appendNode; // temp
+                // step 2, find insert location
+                appendNode = getAppendNodeByFindingCommonAncestor(root, matchingDescriptor.pageElement);
                 if (appendNode) {
-                    log(`found a matching page element`, appendNode);
+                    log(`found append node`, appendNode);
                 } else {
-                    log(`this page has no matchning page element`, matchingDescriptor);
-                }
-                if (!appendNode) {
-                    return errorCb('1');
+                    return runCallback('cannot find append node');
                 }
             }
 
-            // step 3, match next link element
+            // step 3, find next link element
             var nextPageElement = getElementByXPath(root, matchingDescriptor.nextLink)
             if (nextPageElement) {
-                log(`found a matching next link element`, nextPageElement);
+                log(`found next link element`, nextPageElement);
             } else {
-                log(`this page has no matchning next element`, matchingDescriptor);
-            }
-            if (!nextPageElement) {
-                return errorCb('2');
+                return runCallback('cannot find next link element');
             }
 
-            // step 4, insert
+            // step 4, insert page
             var nextPageUrl = getElementHref(nextPageElement);
 
             var response = await fetch(nextPageUrl);
@@ -69,7 +82,7 @@ function run(options, matchingDescriptor, errorCb) {
 
 
             appendNode.appendChild(document.createElement("hr"));
-            appendNode.appendChild(document.createTextNode(`NextPage: ${pageNumber}`));
+            appendNode.appendChild(document.createTextNode(`Following Page Number: ${pageNumber}`));
             appendNode.appendChild(document.createElement("hr"));
 
             for (var i = 0; i < nextPageFragments.snapshotLength; i++) {
@@ -77,12 +90,13 @@ function run(options, matchingDescriptor, errorCb) {
                 appendNode.appendChild(pageFragment);
             }
 
-            callback.call(null, nextRoot, appendNode, pageNumber + 1, callback);
-            return errorCb(null);
+
+            loopCallback.call(null, nextRoot, appendNode, pageNumber + 1, loopCallback);
+            return runCallback(null);
         })
     }
 
-    function getAppendNode(root, pageFragmentXPath) {
+    function getAppendNodeByFindingCommonAncestor(root, pageFragmentXPath) {
         var appendNode = null;
         // compute first common parent for all pageFragments
         var nodes = getAllElementsByXPath(root, pageFragmentXPath);
@@ -108,15 +122,20 @@ function run(options, matchingDescriptor, errorCb) {
             throw 'whaat?!'
         }
 
-        log(`an:`, appendNode);
+        // log(`an:`, appendNode);
 
         return appendNode;
+    }
+
+    function subscribeEndOfPageFragmentEvent(callback) {
+        // TODO this is better
     }
 
     function subscribeEndOfPageEvent(callback) {
         if (onScroll()) {
 
         } else {
+            console.count(`subscribed to end of page event`);
             window.addEventListener("scroll", onScroll,
                 {
                     passive: true, useCapture: false
@@ -128,6 +147,7 @@ function run(options, matchingDescriptor, errorCb) {
 
         return {
             cancel() {
+                console.count(`cancelled subscription to end of page event`);
                 window.removeEventListener("scroll", onScroll,
                     {
                         passive: true, useCapture: false
@@ -145,6 +165,7 @@ function run(options, matchingDescriptor, errorCb) {
 
         function onScroll() {
             if (isEndOfPage()) {
+                console.log(`reached end of page`);
                 callback();
                 return true;
             }
