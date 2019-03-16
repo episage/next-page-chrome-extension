@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+
+
+
+<head>
+    <title>NextPage options</title>
+
+
+    <style>
+        html {
+            font-size: large;
+        }
+
+        body {
+            font-family: "Trebuchet MS", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+            margin: 0 auto;
+            max-width: 50em;
+            font-size: 1rem;
+            line-height: 1.6;
+            padding: 0 1em;
+
+            color: #434343;
+            background-color: #fafafa;
+
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+
+            padding-bottom: 30%;
+        }
+
+
+
+        h1,
+        h2,
+        h3 {
+            line-height: 1.2
+        }
+
+        h1 {
+            padding-bottom: 1rem;
+        }
+
+        input,
+        textarea {
+            font-size: inherit;
+        }
+
+
+        textarea {
+            width: 100%;
+            font-family: monospace;
+            padding: 0.25rem;
+            /* color: #AFAFB0; */
+        }
+
+        pre {
+            border-radius: 5px;
+            border: 1px solid #BCBEC0;
+            background: #F1F3F5;
+            font-family: monospace;
+        }
+
+        code {
+            border-radius: 5px;
+            border: 1px solid #BCBEC0;
+            padding: 2px;
+            font-family: monospace;
+        }
+
+        pre code {
+            border-radius: 0px;
+            border: 0px;
+            padding: 2px;
+            font-family: monospace;
+            display: block;
+            overflow: scroll;
+
+            /* padding-bottom: 0.5rem;
+            padding-top:0.5rem; */
+        }
+
+        .guide-part {
+            margin-left: 1rem;
+        }
+
+        img {
+            margin: 1rem;
+            border-radius: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <br />
+        <img src="images/manifest/128.png" />
+        <h1>NextPage Chrome Extension</h1>
+    </center>
+    <h3>Custom paging rules</h3>
+    <p>
+        You need to know:
+    </p>
+    <ul>
+        <li>JavaScript regular expressions (RegExp) syntax</li>
+        <li>XPath syntax</li>
+    </ul>
+    <p>
+        You must use xPath to write element finding rules for <code>pageElement</code> and <code>nextLink</code>. Here
+        is a good cheatsheet
+        I use: <a href="https://devhints.io/xpath">https://devhints.io/xpath</a>
+    </p>
+    <p>
+        You must use RegExp to write URL matching rules. <a
+            href="https://devhints.io/regexp">https://devhints.io/regexp</a>
+    </p>
+    <p>
+        You can write custom rules in the box below. Remember to press the save button.
+    </p>
+    <textarea id="rules" rows="10"></textarea>
+    <button type="submit" id="save">Save Rules Locally</button>
+    <!-- <button type="submit">Submit Your Rules to global repository (they will be reviewed)</button> -->
+
+    <h3>Example rule</h3>
+
+    <pre><code>url ^https://www\.linuxquestions\.org/questions/
+pageElement //div[@id="posts"]//div[@class="page"]
+nextLink //a[@rel="next"]
+
+</code></pre>
+
+    <h3>Tutorial for www.linuxquestions.org forum</h3>
+    <p>
+        Let's say that we want to pagerize threads under this URL <a
+            href="https://www.linuxquestions.org/questions/linux-software-2/linux-mint-18-3-fails-to-install-on-hp-laptop-4175648546/">Linux
+            Mint 18.3 fails to install on HP laptop</a>
+    </p>
+    <p>
+        There are 3 steps
+    </p>
+    <div class="guide-part">
+        <h4>Step 1 - find out <code>url</code> RegExp</h4>
+
+        <p>
+            URL we are after is
+            <code>https://www.linuxquestions.org/questions/linux-softwa...</code>.
+        </p>
+        <img src="tutorial/images/Screen Shot 2019-03-09 at 17.12.32.png" />
+        <p>
+            All the forum threads happen to be nested under <code>https://www.linuxquestions.org/questions/...</code>.
+        </p>
+        <p>
+            So the best <i>RegExp</i> for the URL above is <code>^https://www\.linuxquestions\.org/questions/</code>.
+        </p>
+        <p>
+            Meaning: match all URL which start with
+            <code>https://www.linuxquestions.org/questions/</code>.
+        </p>
+    </div>
+
+    <div class="guide-part">
+        <h4>Step 2 - find out <code>nextPage</code> XPath</h4>
+        <p>
+            Use Chrome DevTools to inspect a webpage button that leads to next page.
+        </p>
+        <img src="tutorial/images/Screen Shot 2019-03-09 at 17.03.04.png" />
+        <img src="tutorial/images/Screen Shot 2019-03-09 at 17.05.24.png" />
+        <p>
+            Now, using your intelligence, try to guess the most precise selector you can write to find the next page
+            button.
+        </p>
+        <p>
+            My guess would be to use <code>a rel="next"</code>. It seems to be a good target. It is not unique on the
+            webpage but we don't have to worry since all it's copies move user to the next page.
+        </p>
+        <p>
+            XPath for it is: <code>//a[@rel="next"]</code>. Meaning: find all <code>a</code> tags, no matter where they
+            are in the DOM, with attribute <code>rel</code> equal to <code>next</code>.
+        </p>
+        <p>
+            LPT: You can press <code>⌘+F</code> to test your XPath live
+        </p>
+        <img src="tutorial/images/Screen Shot 2019-03-09 at 17.11.27.png" />
+    </div>
+
+    <div class="guide-part">
+        <h4>Step 3 - find out <code>pageElement</code> XPath</h4>
+        <p>
+            It is important to note that <code>pageElement</code> is <b>a single post</b>. NextPage will fetch next page
+            and look for all such single posts on the next page. After that NextPage will append the found posts to the
+            end of current series of posts.
+        </p>
+        <img src="tutorial/images/Screen Shot 2019-03-09 at 17.16.08.png" />
+        <p>You should use the same logic for finding XPath for a single post as in Step 2</p>
+        <p>I found a good XPath to be <code>//div[@id="posts"]//div[@class="page"]</code></p>
+    </div>
+
+    <div class="guide-part">
+        <h4>Finished</h4>
+        <p>
+            Assemble all the 3 things you found into JS object and append it in the box.
+        </p>
+        <pre><code>url ^https://www\.linuxquestions\.org/questions/
+pageElement //div[@id="posts"]//div[@class="page"]
+nextLink //a[@rel="next"]
+
+</code></pre>
+    </div>
+
+    <script src="options.js"></script>
+</body>
+
+</html>
