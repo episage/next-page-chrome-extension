@@ -1,3 +1,7 @@
+var consoleLog = () => { }; //console.log;
+var consoleCount = () => { }; //console.count;
+var consoleError =  () => { }; // console.error;
+
 window.addEventListener('load', async () => {
     var descriptors = await getDecriptiorsForUrl(window.location.href);
     descriptors = descriptors.map(d => {
@@ -9,11 +13,12 @@ window.addEventListener('load', async () => {
     var root = document;
     descriptorLoop:
     for (var desciptor of descriptors) {
+        consoleLog(desciptor);
 
         // get append node first so we know where is "end of page"
         var appendNode = await findCommonAncestor(root, desciptor.pageFragmentXPath);
         if (!appendNode) {
-            console.log('cannot find append node');
+            consoleLog('cannot find append node');
             continue descriptorLoop;
         }
 
@@ -21,12 +26,12 @@ window.addEventListener('load', async () => {
         while (true) {
             var nextPageButton = await getElementByXPath(root, desciptor.nextPageButtonXPath);
             if (!nextPageButton) {
-                console.log('cannot find next page node');
+                consoleLog('cannot find next page node');
                 continue descriptorLoop;
             }
 
             await nodeProximityEvent(appendNode, 400);
-            console.log(`reached close proximity`)
+            consoleLog(`reached close proximity`)
 
             var nextPage = await fetchNextPage(nextPageButton);
             var sanitizedNextPage = await sanitizeNextPage(nextPage);
@@ -43,10 +48,10 @@ async function getDecriptiorsForUrl(urlOfInterest) {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage({ type: "findUrlDescriptor", url: urlOfInterest }, async function (descriptors) {
             if (!descriptors || descriptors.length === 0) {
-                console.log(`found no descriptors for url`, urlOfInterest);
+                consoleLog(`found no descriptors for url`, urlOfInterest);
                 return resolve([]);
             }
-            console.log(`found ${descriptors.length} matching descriptors for`, urlOfInterest);
+            consoleLog(`found ${descriptors.length} matching descriptors for`, urlOfInterest);
             return resolve(descriptors);
         });
     })
@@ -112,7 +117,7 @@ async function nodeProximityEvent(node, activationDistancePx) {
         if (isEndOfPage()) {
             return resolve();
         } else {
-            console.count(`subscribed to end of page event`);
+            consoleCount(`subscribed to end of page event`);
             window.addEventListener("scroll", onScroll,
                 {
                     passive: true, useCapture: false
@@ -127,7 +132,7 @@ async function nodeProximityEvent(node, activationDistancePx) {
                         passive: true, useCapture: false
                     }
                 );
-                console.count(`cancelled subscription to end of page event`);
+                consoleCount(`cancelled subscription to end of page event`);
                 return resolve();
             }
         }
