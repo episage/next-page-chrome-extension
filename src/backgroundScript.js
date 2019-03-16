@@ -1,3 +1,15 @@
+var manuallyAddedDescriptors = [
+    {
+        url: `^https://www\.linuxquestions\.org/questions/`,
+        pageElement: `//div[@id="posts"]//div[@class="page"]`,
+        nextLink: `//a[@rel="next"]`,
+    },
+    {
+        pageElement: `//table[@id="threadslist"]//tbody[starts-with(@id, "threadbits_")]//tr`,
+        nextLink: `//a[@rel="next"]`,
+    }
+]
+
 chrome.runtime.onInstalled.addListener(function () {
 
 });
