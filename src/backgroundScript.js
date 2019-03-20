@@ -39,7 +39,7 @@ window.onload = function () {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request) {
             if (request.type === `findUrlDescriptor`) {
-                fetch('http://next-page-server.ciborski.com:3214/', {
+                fetch('https://next-page-server.ciborski.com/', { // TLS SECURE CONNECTION
                     body: request.url,
                     method: 'post'
                 }).then(response => {
