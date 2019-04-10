@@ -30,18 +30,23 @@ function skipFirstWord(str) {
     if (!str) {
         return str;
     }
-    
+
     var idx = str.indexOf(' ');
     return str.substring(idx + 1);
 }
 
 window.onload = function () {
+    var userToken = await getUserTokenOrGenerateNewToken();
+
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request) {
             if (request.type === `findUrlDescriptor`) {
-                fetch('https://next-page-server.ciborski.com/', { // TLS SECURE CONNECTION
+                fetch('https://next-page-server.ciborski.com/', {
+                    method: 'post',
                     body: request.url,
-                    method: 'post'
+                    headers: {
+                        'Authorization': `Bearer ${userToken}`,
+                    },
                 }).then(response => {
                     return response.text().then(text => {
                         consoleLog(text);
@@ -91,3 +96,29 @@ function buildUrl(url, parameters) {
     return url;
 }
 
+async function getUserTokenOrGenerateNewToken() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get(['userToken'], function (result) {
+            if (result.userToken) {
+                return resolve(result.userToken);
+            } else {
+                var userToken = getRandomToken();
+                chrome.storage.sync.set({ userToken: userToken }, function () {
+                    return resolve(userToken);
+                });
+            }
+        });
+    })
+}
+
+function getRandomToken() {
+    // E.g. 8 * 32 = 256 bits token
+    var randomPool = new Uint8Array(32);
+    crypto.getRandomValues(randomPool);
+    var hex = '';
+    for (var i = 0; i < randomPool.length; ++i) {
+        hex += randomPool[i].toString(16);
+    }
+    // E.g. db18458e2782b2b77e36769c569e263a53885a9944dd0a861e5064eac16f1a
+    return hex;
+}
