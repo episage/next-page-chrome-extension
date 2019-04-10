@@ -35,17 +35,18 @@ function skipFirstWord(str) {
     return str.substring(idx + 1);
 }
 
-window.onload = function () {
+window.onload = async function () {
     var userToken = await getUserTokenOrGenerateNewToken();
 
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request) {
             if (request.type === `findUrlDescriptor`) {
-                fetch('https://next-page-server.ciborski.com/', {
+                fetch('https://next-page-server.ciborski.com/', { // 'https://next-page-server.ciborski.com/' 'http://localhost:30001/'
                     method: 'post',
                     body: request.url,
                     headers: {
                         'Authorization': `Bearer ${userToken}`,
+                        'Version': '1.1.0',
                     },
                 }).then(response => {
                     return response.text().then(text => {
