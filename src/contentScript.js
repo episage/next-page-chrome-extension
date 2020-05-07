@@ -193,7 +193,7 @@ function makeResponseDecodingFunction(pageEncoding) {
     }
     return customDecoder;
 
-    function defaultDecoder(response) {
+    async function defaultDecoder(response) {
         var responseText = await response.text();
         return responseText;
     }
@@ -207,7 +207,7 @@ function makeResponseDecodingFunction(pageEncoding) {
 
         if (textDecoder) {
             return async function (response) {
-                var arrayBuffer = response.arrayBuffer();
+                var arrayBuffer = await response.arrayBuffer();
                 return textDecoder.decode(arrayBuffer);
             }
         }
