@@ -1,6 +1,7 @@
 var noop = () => { };
 var consoleLog = noop;
 var consoleCount = noop;
+var consoleWarn = noop;
 var consoleError = noop;
 
 window.addEventListener('load', async () => {
@@ -177,6 +178,41 @@ async function fetchNextPage(nextPageElement) {
     var domParser = new DOMParser();
     var nextRoot = domParser.parseFromString(responseText, 'text/html');
     return nextRoot;
+}
+
+function makeTextDecodingFunction(pageEncoding) {
+    if (!pageEncoding) {
+        return defaultDecoder;
+    }
+
+    const customDecoder = maybeGetCustomDecoder(pageEncoding);
+    if (!customDecoder) {
+        consoleWarn(`encoding ${encoding} is not supported`);
+        return defaultDecoder;
+    }
+    return customDecoder;
+
+    function defaultDecoder(response) {
+        var responseText = await response.text();
+        return responseText;
+    }
+
+    function maybeGetCustomDecoder(encoding) {
+        try {
+            var textDecoder = new TextDecoder(encoding);
+        } catch (error) {
+            // sorry
+        }
+
+        if (textDecoder) {
+            return async function (response) {
+                var arrayBuffer = response.arrayBuffer();
+                return textDecoder.decode(arrayBuffer);
+            }
+        }
+
+        return null;
+    }
 }
 
 async function sanitizeNextPage(nextPageElement) {
