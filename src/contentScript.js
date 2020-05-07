@@ -1,6 +1,7 @@
-var consoleLog = console.log;
-var consoleCount = console.count;
-var consoleError = console.error;
+var noop = () => { };
+var consoleLog = noop;
+var consoleCount = noop;
+var consoleError = noop;
 
 window.addEventListener('load', async () => {
     var descriptors = await getDecriptiorsForUrl(window.location.href);

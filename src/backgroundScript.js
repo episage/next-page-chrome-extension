@@ -1,6 +1,7 @@
-var consoleLog = console.log;
-var consoleCount = console.count;
-var consoleError = console.error;
+var noop = () => { };
+var consoleLog = noop;
+var consoleCount = noop;
+var consoleError = noop;
 
 function matchLocal(urlToMatch, callback) {
     var rules = localStorage.getItem('rules') || '';
