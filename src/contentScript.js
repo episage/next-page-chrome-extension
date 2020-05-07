@@ -24,6 +24,7 @@ window.addEventListener('load', async () => {
             continue descriptorLoop;
         }
 
+        var decodeResponse = makeResponseDecodingFunction(getCurrentWebpageEncoding());
         infiniteNextPageLoop:
         while (true) {
             var nextPageButton = await getElementByXPath(root, desciptor.nextPageButtonXPath);
@@ -33,9 +34,9 @@ window.addEventListener('load', async () => {
             }
 
             await nodeProximityEvent(appendNode, 400);
-            consoleLog(`reached close proximity`)
+            consoleLog(`reached close proximity`);
 
-            var nextPage = await fetchNextPage(nextPageButton);
+            var nextPage = await fetchNextPage(decodeResponse, nextPageButton);
             var sanitizedNextPage = await sanitizeNextPage(nextPage);
             await new Promise((resolve) => {
                 setTimeout(resolve, 500);
@@ -168,19 +169,19 @@ async function nodeProximityEvent(node, activationDistancePx) {
     })
 }
 
-async function fetchNextPage(nextPageElement) {
+async function fetchNextPage(responseDecodingFunction, nextPageElement) {
     // step 4, insert page
     var nextPageUrl = getElementHref(nextPageElement);
 
     var response = await fetch(nextPageUrl);
-    var responseText = await response.text();
+    var responseText = await responseDecodingFunction(response);
     responseText = stripHtmlTag(responseText);
     var domParser = new DOMParser();
     var nextRoot = domParser.parseFromString(responseText, 'text/html');
     return nextRoot;
 }
 
-function makeTextDecodingFunction(pageEncoding) {
+function makeResponseDecodingFunction(pageEncoding) {
     if (!pageEncoding) {
         return defaultDecoder;
     }
@@ -213,6 +214,10 @@ function makeTextDecodingFunction(pageEncoding) {
 
         return null;
     }
+}
+
+function getCurrentWebpageEncoding() {
+    return document.characterSet;
 }
 
 async function sanitizeNextPage(nextPageElement) {
