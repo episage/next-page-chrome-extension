@@ -7,4 +7,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - 2020-05-08
 ### Fixed
-- Pages with custom encoding load correctly. This closes [PR#1](https://github.com/episage/next-page-chrome-extension/issues/1)
+- Pages with custom encoding load correctly. This closes [PR#1](https://github.com/episage/next-page-chrome-extension/issues/1).
+- Removed debugging output from console.
