@@ -123,7 +123,7 @@
 
     <h3>Example rule</h3>
 
-    <pre><code>url ^https://www\.linuxquestions\.org/questions/
+    <pre><code>url ^https:\/\/www\.linuxquestions\.org\/questions\/
 pageElement //div[@id="posts"]//div[@class="page"]
 nextLink //a[@rel="next"]
 
@@ -139,7 +139,7 @@ nextLink //a[@rel="next"]
         There are 3 steps
     </p>
     <div class="guide-part">
-        <h4>Step 1 - find out <code>url</code> RegExp</h4>
+        <h4>Step 1 - find out <code>url</code> JavaScript regular expresion (RegExp)</h4>
 
         <p>
             URL we are after is
@@ -150,7 +150,7 @@ nextLink //a[@rel="next"]
             All the forum threads happen to be nested under <code>https://www.linuxquestions.org/questions/...</code>.
         </p>
         <p>
-            So the best <i>RegExp</i> for the URL above is <code>^https://www\.linuxquestions\.org/questions/</code>.
+            So the best <i>RegExp</i> for the URL above is <code>^https:\/\/www\.linuxquestions\.org\/questions\/</code>.
         </p>
         <p>
             Meaning: match all URL which start with
@@ -200,7 +200,7 @@ nextLink //a[@rel="next"]
         <p>
             Assemble all the 3 things you found into JS object and append it in the box.
         </p>
-        <pre><code>url ^https://www\.linuxquestions\.org/questions/
+        <pre><code>url ^https:\/\/www\.linuxquestions\.org\/questions\/
 pageElement //div[@id="posts"]//div[@class="page"]
 nextLink //a[@rel="next"]
 
