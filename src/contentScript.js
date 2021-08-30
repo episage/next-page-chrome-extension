@@ -25,6 +25,7 @@ window.addEventListener('load', async () => {
         }
 
         var decodeResponse = makeResponseDecodingFunction(getCurrentWebpageEncoding());
+        var page = 0;
         infiniteNextPageLoop:
         while (true) {
             var nextPageButton = await getElementByXPath(root, desciptor.nextPageButtonXPath);
@@ -43,7 +44,8 @@ window.addEventListener('load', async () => {
             });
             var nextPageFragmentsXPathResult = getAllElementsByXPath(sanitizedNextPage, desciptor.pageFragmentXPath);
 
-            await append(appendNode, nextPageFragmentsXPathResult);
+            page += 1;
+            await append(appendNode, nextPageFragmentsXPathResult, page);
 
             root = nextPage;
         }
@@ -226,9 +228,9 @@ async function sanitizeNextPage(nextPageElement) {
     return sanitized;
 }
 
-function append(appendNode, nextPageFragments) {
+function append(appendNode, nextPageFragments, page) {
     appendNode.appendChild(document.createElement("hr"));
-    appendNode.appendChild(document.createTextNode(`next page`));
+    appendNode.appendChild(document.createTextNode(`page ${page}`));
     appendNode.appendChild(document.createElement("hr"));
 
     for (var i = 0; i < nextPageFragments.snapshotLength; i++) {
