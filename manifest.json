@@ -21,7 +21,6 @@
     ]
   },
   "permissions": [
-    "activeTab",
     "storage"
   ],
   "homepage_url": "https://infinity-scroll.chrome-web-store.projects.ciborski.com/",
