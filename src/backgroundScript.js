@@ -27,6 +27,22 @@ function matchLocal(urlToMatch, callback) {
     return callback(rlz);
 }
 
+function isBlacklisted(url) {
+    var blacklist = localStorage.getItem('blacklist') || '';
+    var urlRegExps = blacklist.split('\n').map(s => s.trim()).filter(Boolean);
+
+    for (var i = 0; i < urlRegExps.length; i++) {
+        var regexp = new RegExp(urlRegExps[i]);
+        consoleLog(`testing "${url}" against "${urlRegExps[i]}"`);
+        var isMatch = regexp.test(url);
+        if (isMatch) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function skipFirstWord(str) {
     if (!str) {
         return str;
@@ -42,6 +58,11 @@ window.onload = async function () {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request) {
             if (request.type === `findUrlDescriptor`) {
+                if (isBlacklisted(request.url)) {
+                    consoleLog(`url ${request.url} is blacklisted`);
+                    return sendResponse(null);
+                }
+
                 fetch('https://next-page-server.ciborski.com/', { // 'https://next-page-server.ciborski.com/' 'http://localhost:30001/'
                     method: 'post',
                     body: request.url,

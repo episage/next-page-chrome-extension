@@ -97,7 +97,7 @@
         <img src="images/manifest/128.png" />
         <h1>NextPage Chrome Extension</h1>
     </center>
-    <h3>Custom paging rules</h3>
+    <h2>Custom paging rules</h2>
     <p>
         You need to know:
     </p>
@@ -126,10 +126,21 @@
     <pre><code>url ^https:\/\/www\.linuxquestions\.org\/questions\/
 pageElement //div[@id="posts"]//div[@class="page"]
 nextLink //a[@rel="next"]
-
+=== *** ===
 </code></pre>
 
-    <h3>Tutorial for www.linuxquestions.org forum</h3>
+    <h2>Blacklist</h2>
+    <p>
+        In case you want to disable pagination on some pages place their corresponding RegExp in the box below.
+    </p>
+
+    <h3>Blacklist example</h3>
+    <pre><code>^https?:\/\/www\.google\.com\/</code></pre>
+
+    <textarea id="blacklist" rows="10"></textarea>
+    <button type="submit" id="saveBlacklist">Save Blacklist Locally</button>
+
+    <h2>Tutorial for www.linuxquestions.org forum</h2>
     <p>
         Let's say that we want to pagerize threads under this URL <a
             href="https://www.linuxquestions.org/questions/linux-software-2/linux-mint-18-3-fails-to-install-on-hp-laptop-4175648546/">Linux
@@ -198,12 +209,12 @@ nextLink //a[@rel="next"]
     <div class="guide-part">
         <h4>Finished</h4>
         <p>
-            Assemble all the 3 things you found into JS object and append it in the box.
+            Append all the 3 things it in the box and add an empty line or a separator of your choice.
         </p>
         <pre><code>url ^https:\/\/www\.linuxquestions\.org\/questions\/
 pageElement //div[@id="posts"]//div[@class="page"]
 nextLink //a[@rel="next"]
-
+=== *** ===
 </code></pre>
     </div>
 
